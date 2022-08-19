@@ -9,13 +9,16 @@ const Wrapper = styled.div`
   background-color: ${(props) => props.theme.boardColor};
   padding: 10px 0px;
   border-radius: 5px;
-  min-height: 200px;
+  min-height: 250px;
   display: flex;
   flex-direction: column;
 `;
 
-const Title = styled.h2`
-  text-align: center;
+const Title = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 7px;
   font-weight: 600;
   margin-bottom: 10px;
   font-size: 18px;
@@ -45,13 +48,20 @@ const Form = styled.form`
   }
 `;
 
+const Input = styled.input`
+  border: none;
+  font-size: 14px;
+  padding: 10px;
+`;
+
 interface IBoardProps {
   toDos: ITodo[];
   boardId: string;
 }
 
-interface IForm {
+export interface IForm {
   toDo: string;
+  category: string;
 }
 
 function Board({ toDos, boardId }: IBoardProps) {
@@ -74,10 +84,10 @@ function Board({ toDos, boardId }: IBoardProps) {
     <Wrapper>
       <Title>{boardId}</Title>
       <Form onSubmit={handleSubmit(onValid)}>
-        <input
+        <Input
           {...register("toDo", { required: true })}
           type="text"
-          placeholder={`Add task on ${boardId}`}
+          placeholder={`📎 ${boardId} 메모`}
         />
       </Form>
       <Droppable droppableId={boardId}>
@@ -93,7 +103,7 @@ function Board({ toDos, boardId }: IBoardProps) {
                 key={todo.id}
                 toDoId={todo.id}
                 index={index}
-                toDoText={todo.text}
+                toDoText={`${todo.text}`}
               />
             ))}
             {magic.placeholder}

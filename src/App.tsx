@@ -2,17 +2,37 @@ import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { toDoState } from "./atoms";
-import Board from "./Components/Board";
+import Board, { IForm } from "./Components/Board";
+import { useForm } from "react-hook-form";
 
 const Wrapper = styled.div`
   background-color: ${(props) => props.theme.bgColor};
   display: flex;
+  flex-direction: column;
   max-width: 680px;
   width: 100%;
   margin: 0 auto;
   justify-content: center;
   align-items: center;
   height: 100vh;
+`;
+
+const CreateBoard = styled.div``;
+
+const CBform = styled.form`
+  margin-bottom: 15px;
+`;
+
+const CBinput = styled.input`
+  border: none;
+  font-size: 14px;
+  padding: 10px;
+  border-radius: 3px;
+`;
+
+const CBbutton = styled.button`
+  position: relative;
+  right: 8px;
 `;
 
 const Boards = styled.div`
@@ -23,6 +43,7 @@ const Boards = styled.div`
 `;
 
 function App() {
+  const { register, handleSubmit, setValue } = useForm<IForm>();
   const [toDos, setToDos] = useRecoilState(toDoState);
   const onDragEnd = (info: DropResult) => {
     const { destination, draggableId, source } = info;
@@ -54,14 +75,35 @@ function App() {
       });
     }
   };
+  const onValid = ({ category }: IForm) => {
+    setToDos((allBoards) => {
+      return {
+        [category]: [],
+        ...allBoards,
+      };
+    });
+    setValue("category", "");
+  };
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Wrapper>
-        <Boards>
-          {Object.keys(toDos).map((boardId) => (
-            <Board boardId={boardId} key={boardId} toDos={toDos[boardId]} />
-          ))}
-        </Boards>
+        <>
+          <CreateBoard>
+            <CBform onSubmit={handleSubmit(onValid)}>
+              <CBinput
+                {...register("category", { required: true })}
+                type="text"
+                placeholder="새로운 카테고리 이름"
+              ></CBinput>
+              <CBbutton>추가</CBbutton>
+            </CBform>
+          </CreateBoard>
+          <Boards>
+            {Object.keys(toDos).map((boardId) => (
+              <Board boardId={boardId} key={boardId} toDos={toDos[boardId]} />
+            ))}
+          </Boards>
+        </>
       </Wrapper>
     </DragDropContext>
   );
